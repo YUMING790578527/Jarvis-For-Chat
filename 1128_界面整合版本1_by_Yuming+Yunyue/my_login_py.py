@@ -10,7 +10,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QDialog, QLabel, QApplication
 from PyQt5.QtCore import *
 from Login import Ui_Dialog
-import db_IF
+import database as db
 
 
 class LoginLogic(QDialog, Ui_Dialog):
@@ -22,12 +22,12 @@ class LoginLogic(QDialog, Ui_Dialog):
         self.retranslateUi(self)
 
         """窗口初始化"""
-        self.setWindowOpacity(0.9)  # 设置窗口透明度
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)  # 设置窗口背景透明
+        #self.setWindowOpacity(0.9)  # 设置窗口透明度
+        #self.setAttribute(QtCore.Qt.WA_TranslucentBackground)  # 设置窗口背景透明
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)  # 隐藏边框
 
         """输入框初始化"""
-        # 此处改变密码输入框LEpassword的属性，使其不现实密码
+        # 此处改变密码输入框LEpassword的属性，使其不显示密码
         self.LE_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.LE_username.setTextMargins(40, 0, 0, 0)
         self.LE_username.setPlaceholderText("请输入用户名")
@@ -70,19 +70,31 @@ class LoginLogic(QDialog, Ui_Dialog):
         if user_name == "" or user_password == "":
             self.LB_note.setText("请输入用户名和密码")
         else:
-            password = db_IF.IsExistUser(user_name)
+            password = db.IsExistUser(user_name)
             if password != None:
-                if db_IF.hash(user_password) == password:
-                    self.LB_note.setText("登录成功")
+                if db.hash(user_password) == password:
+                    if db.statusChangeLogin(user_name):
+                        self.LB_note.setText("登录成功")
+                        #___________登录成功转到主窗口_____________#
+                        self.mainwindow_up()
+                        self.hide();
+                        #___________登录成功转到主窗口_____________#
+
+                    else:
+                        self.LB_note.setText("登录失败，请重试！")
                     timer=QtCore.QTimer(self)
                     timer.timeout.connect(self.close)
                     timer.start(3000)
-
 
                 else:
                     self.LB_note.setText("密码不正确")
             else:
                 self.LB_note.setText("此用户未注册")
+                ######___________登录成功转到主窗口_____________#######
+                ######此处仅为测试功能用，待完善后需要删除
+                self.mainwindow_up()
+                self.hide()
+                ######___________登录成功转到主窗口_____________#######
 
     def signup(self):
         """
@@ -94,12 +106,22 @@ class LoginLogic(QDialog, Ui_Dialog):
         sig.show()
         self.close()
 
+    def mainwindow_up(self):
+        """
+            去往Main_Window的界面
+            :return:
+        """
+        from My_Window import Main_Window
+        mainwindow = Main_Window()
+        mainwindow.show()
+        self.close()
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     ui = LoginLogic()
     """qss初始化"""
-    f = open(r'E:\repository\Jarvis-For-Chat\1110_login_test_by_Yunyue/style_syy.qss', "r", encoding='utf-8')
+    f = open(r'./style_syy.qss', "r", encoding='utf-8')
     style = f.read()
     app.setStyleSheet(style)
     ui.show()

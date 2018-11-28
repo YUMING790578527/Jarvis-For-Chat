@@ -1,0 +1,36 @@
+# coding=utf-8
+"""
+热词分析群组初步构建
+"""
+
+import sys
+import time
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtWidgets import QDialog, QLabel, QApplication,QFrame
+from PyQt5.QtCore import *
+from Barabove import Ui_Form
+
+class BarLogic(QFrame,Ui_Form):
+    def __init__(self, parent=None):
+        super(BarLogic, self).__init__(parent)
+
+        """初始化函数"""
+        self.setupUi(self)
+        self.retranslateUi(self)
+        """初始化窗体"""
+        self.setWindowFlags(Qt.FramelessWindowHint)  # 设置隐藏边框
+        """初始化按钮"""
+
+        """初始化信号槽"""
+
+
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    ui = BarLogic()
+    """qss初始化"""
+    f = open(r'./barabove_style.qss', "r", encoding='utf-8')
+    style = f.read()
+    app.setStyleSheet(style)
+    ui.show()
+    sys.exit(app.exec_())
